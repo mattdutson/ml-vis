@@ -1,0 +1,6 @@
+name: ml-vis
+channels:
+  - defaults
+dependencies:
+  - python
+  - tensorflow=2.2
