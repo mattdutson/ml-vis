@@ -1,1 +1,4 @@
 .idea
+*.npz
+*.zip
+*.csv
