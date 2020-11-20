@@ -1,4 +1,6 @@
 .idea
+data
+*.csv
+*.h5
 *.npz
 *.zip
-*.csv
