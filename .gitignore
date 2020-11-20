@@ -2,5 +2,6 @@
 data
 *.csv
 *.h5
+*.h5.bak
 *.npz
 *.zip
