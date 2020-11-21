@@ -4,7 +4,7 @@ import os.path as path
 from datetime import datetime
 
 import tensorflow as tf
-from tensorflow.keras.applications.mobilenet import MobileNet
+from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.callbacks import *
 from tensorflow.keras.datasets import cifar100
 from tensorflow.keras.layers import *
@@ -12,8 +12,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import RMSprop
 
 # Define training parameters
-name = 'mobilenet'
-dropout = 0.25
+name = 'vgg16'
 learning_rate = 1e-5
 epochs = 100
 
@@ -22,15 +21,18 @@ epochs = 100
 y_train = tf.one_hot(tf.squeeze(y_train), 100)
 
 # Load pretrained backbone
-backbone = MobileNet(input_shape=x_train.shape[1:],
-                     include_top=False,
-                     weights='imagenet')
+backbone = VGG16(input_shape=x_train.shape[1:],
+                 include_top=False,
+                 weights='imagenet')
 
 # Add final size-specific layers
 inputs = backbone.input
 x = backbone(inputs)
-x = GlobalAveragePooling2D()(x)
-x = Dropout(dropout)(x)
+x = Flatten()(x)
+x = Dense(4096)(x)
+x = ReLU()(x)
+x = Dense(4096)(x)
+x = ReLU()(x)
 x = Dense(100)(x)
 x = Softmax()(x)
 model = Model(inputs=inputs, outputs=x)
