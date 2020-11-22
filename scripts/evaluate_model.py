@@ -29,13 +29,17 @@ y_pred = model.predict(x_test)
 
 name = path.splitext(path.basename(model_filename))[0]
 os.makedirs('predictions', exist_ok=True)
+with open(path.join('names', 'fine.txt'), 'r') as names_file_f:
+    names_f = list(map(str.strip, names_file_f.readlines()))
 
 # Write a .csv file with softmax probabilities
 csv_filename = path.join('predictions', '{}.csv'.format(name))
 with open(csv_filename, 'w') as csv_file:
     print('Writing CSV file "{}"...'.format(csv_filename))
+    csv_file.write('row_id,{}\n'.format(','.join(names_f)))
     for i in range(y_pred.shape[0]):
-        csv_file.write(','.join(map(str, y_pred[i])) + '\n')
+        csv_file.write(
+            '{},{}\n'.format(i, ','.join(map(str, y_pred[i]))))
     print('Done.')
 
 # Write a .npz file (more compact but less portable)

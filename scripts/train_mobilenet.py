@@ -42,7 +42,8 @@ model.compile(optimizer=RMSprop(learning_rate=learning_rate),
               metrics=['accuracy', 'top_k_categorical_accuracy'])
 
 # Set up callbacks
-tb_name = '{}_{}'.format(name, datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
+tb_name = '{}_{}'.format(name,
+                         datetime.now().strftime('%Y-%m-%d_%H:%M:%S'))
 callbacks = [
     ModelCheckpoint(path.join('models', name + '.h5'),
                     monitor='val_accuracy',

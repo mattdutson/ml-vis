@@ -8,18 +8,34 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar100
 
+with open(path.join('names', 'fine.txt'), 'r') as names_file_f:
+    names_f = list(map(str.strip, names_file_f.readlines()))
+
+with open(path.join('names', 'coarse.txt'), 'r') as names_file_c:
+    names_c = list(map(str.strip, names_file_c.readlines()))
+
 
 def export_split(x, y_f, y_c, name):
     split_dirname = path.join('data', name)
     os.makedirs(split_dirname, exist_ok=True)
 
+    y_names_f = []
+    y_names_c = []
+
     # Write a .csv file with labels
     csv_filename = path.join(split_dirname, 'labels.csv')
     with open(csv_filename, 'w') as csv_file:
         print('Writing CSV file "{}"...'.format(csv_filename))
-        csv_file.write('fine,coarse\n')
+        csv_file.write('id_fine,id_coarse,name_fine,name_coarse\n')
         for i in range(x.shape[0]):
-            csv_file.write('{},{}\n'.format(y_f[i][0], y_c[i][0]))
+            id_f = y_f[i][0]
+            id_c = y_c[i][0]
+            name_f = names_f[id_f]
+            name_c = names_c[id_c]
+            y_names_f.append(name_f)
+            y_names_c.append(name_c)
+            csv_file.write(
+                '{},{},{},{}\n'.format(id_f, id_c, name_f, name_c))
         print('Done.')
 
     # Write a directory of image files
@@ -40,7 +56,12 @@ def export_split(x, y_f, y_c, name):
     # Write a .npz file (more compact but less portable)
     npz_filename = path.join(split_dirname, 'all.npz')
     print('Writing NPZ file "{}"...'.format(npz_filename))
-    np.savez_compressed(npz_filename, x=x, y_fine=y_f, y_coarse=y_c)
+    np.savez_compressed(npz_filename,
+                        x=x,
+                        y_ids_fine=y_f,
+                        y_ids_coarse=y_c,
+                        y_names_fine=y_names_f,
+                        y_names_coarse=y_names_c)
     print('Done.')
 
 
