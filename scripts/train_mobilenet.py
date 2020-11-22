@@ -28,7 +28,8 @@ backbone = MobileNet(input_shape=x_train.shape[1:],
 
 # Add final size-specific layers
 inputs = backbone.input
-x = backbone(inputs)
+x = inputs
+x = backbone(x)
 x = GlobalAveragePooling2D()(x)
 x = Dropout(dropout)(x)
 x = Dense(100)(x)

@@ -27,7 +27,8 @@ backbone = VGG16(input_shape=x_train.shape[1:],
 
 # Add final size-specific layers
 inputs = backbone.input
-x = backbone(inputs)
+x = inputs
+x = backbone(x)
 x = Flatten()(x)
 x = Dense(4096)(x)
 x = ReLU()(x)
