@@ -1,5 +1,7 @@
 .idea
 data
+models
+predictions
 *.csv
 *.h5
 *.h5.bak

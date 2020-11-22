@@ -28,10 +28,10 @@ model.evaluate(x=x_test, y=y_test)
 y_pred = model.predict(x_test)
 
 name = path.splitext(path.basename(model_filename))[0]
-os.makedirs('data', exist_ok=True)
+os.makedirs('predictions', exist_ok=True)
 
 # Write a .csv file with softmax probabilities
-csv_filename = path.join('data', '{}.csv'.format(name))
+csv_filename = path.join('predictions', '{}.csv'.format(name))
 with open(csv_filename, 'w') as csv_file:
     print('Writing CSV file "{}"...'.format(csv_filename))
     for i in range(y_pred.shape[0]):
@@ -39,7 +39,7 @@ with open(csv_filename, 'w') as csv_file:
     print('Done.')
 
 # Write a .npz file (more compact but less portable)
-npz_filename = path.join('data', '{}.npz'.format(name))
+npz_filename = path.join('predictions', '{}.npz'.format(name))
 print('Writing NPZ file "{}"...'.format(npz_filename))
 np.savez_compressed(npz_filename, y_pred=y_pred)
 print('Done.')
