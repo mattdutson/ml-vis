@@ -1,7 +1,9 @@
+__pycache__
 .idea
 data
 models
 predictions
+.DS_Store
 *.csv
 *.html
 *.h5
