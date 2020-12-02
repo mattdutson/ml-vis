@@ -2,5 +2,7 @@ name: ml-vis
 channels:
   - defaults
 dependencies:
+  - bokeh=2.2
+  - pip
   - python
   - tensorflow=2.2
