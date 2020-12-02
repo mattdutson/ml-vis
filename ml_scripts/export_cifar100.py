@@ -8,11 +8,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.datasets import cifar100
 
-with open(path.join('names', 'fine.txt'), 'r') as names_file_f:
-    names_f = list(map(str.strip, names_file_f.readlines()))
+from utils import cifar100_names
 
-with open(path.join('names', 'coarse.txt'), 'r') as names_file_c:
-    names_c = list(map(str.strip, names_file_c.readlines()))
+names_f = cifar100_names(label_mode='fine')
+names_c = cifar100_names(label_mode='coarse')
 
 
 def export_split(x, y_f, y_c, name):
@@ -28,8 +27,8 @@ def export_split(x, y_f, y_c, name):
         print('Writing CSV file "{}"...'.format(csv_filename))
         csv_file.write('id_fine,id_coarse,name_fine,name_coarse\n')
         for i in range(x.shape[0]):
-            id_f = y_f[i][0]
-            id_c = y_c[i][0]
+            id_f = y_f[i]
+            id_c = y_c[i]
             name_f = names_f[id_f]
             name_c = names_c[id_c]
             y_names_f.append(name_f)
@@ -56,12 +55,15 @@ def export_split(x, y_f, y_c, name):
     # Write a .npz file (more compact but less portable)
     npz_filename = path.join(split_dirname, 'all.npz')
     print('Writing NPZ file "{}"...'.format(npz_filename))
-    np.savez_compressed(npz_filename,
-                        x=x,
-                        y_ids_fine=y_f,
-                        y_ids_coarse=y_c,
-                        y_names_fine=y_names_f,
-                        y_names_coarse=y_names_c)
+    np.savez_compressed(
+        npz_filename,
+        **{
+            'x':              x,
+            'y_ids_fine':     y_f,
+            'y_ids_coarse':   y_c,
+            'y_names_fine':   y_names_f,
+            'y_names_coarse': y_names_c,
+        })
     print('Done.')
 
 
@@ -69,6 +71,10 @@ def export_split(x, y_f, y_c, name):
 (x_train, _), (x_test, _) = cifar100.load_data()
 (_, y_train_f), (_, y_test_f) = cifar100.load_data(label_mode='fine')
 (_, y_train_c), (_, y_test_c) = cifar100.load_data(label_mode='coarse')
+y_train_f = y_train_f.squeeze(axis=-1)
+y_train_c = y_train_c.squeeze(axis=-1)
+y_test_f = y_test_f.squeeze(axis=-1)
+y_test_c = y_test_c.squeeze(axis=-1)
 
 # Process the train and test splits
 export_split(x_train, y_train_f, y_train_c, 'train')
