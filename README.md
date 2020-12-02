@@ -4,7 +4,7 @@ Creating visualization tools for understanding the behavior of ML image classifi
 
 ## Conda Environment
 
-To create the `mobilenet` environment, run:
+To create the `ml-vis` environment, run:
 ```
 conda env create -f conda/environment.yml
 ```
