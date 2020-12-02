@@ -3,6 +3,7 @@ data
 models
 predictions
 *.csv
+*.html
 *.h5
 *.h5.bak
 *.npz
