@@ -2,7 +2,8 @@ name: ml-vis
 channels:
   - defaults
 dependencies:
-  - bokeh=2.2
+  - bokeh=2.2          # For visualization
   - pip
   - python
-  - tensorflow=2.2
+  - scikit-learn=0.23  # For dimensionality reduction
+  - tensorflow=2.2     # For neural networks
