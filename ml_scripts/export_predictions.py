@@ -41,8 +41,7 @@ with open(csv_filename, 'w') as csv_file:
 npz_filename = path.join('predictions', '{}.npz'.format(name))
 print('Writing NPZ file "{}"...'.format(npz_filename))
 np.savez_compressed(
-    npz_filename,
-    **{
+    npz_filename, **{
         'y_pred': y_pred,
     })
 print('Done.')
