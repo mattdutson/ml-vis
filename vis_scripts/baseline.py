@@ -3,15 +3,15 @@
 import os.path as path
 
 import numpy as np
-from bokeh.plotting import figure, curdoc, show
+from bokeh.plotting import curdoc, figure, show
 
 from utils import cifar100_names
 
 # Load and preprocess data
 data = np.load(path.join('data', 'test', 'all.npz'))
-images = data['x']
-rgba = np.full(images.shape[:-1] + (4,), 255, dtype=np.uint8)
-rgba[..., :-1] = np.flip(images, axis=1)
+ims = data['x']
+rgba = np.full(ims.shape[:-1] + (4,), 255, dtype=np.uint8)
+rgba[..., :-1] = np.flip(ims, axis=1)
 views = rgba.view(dtype=np.int32).squeeze(axis=-1)
 y_true = data['y_ids_fine']
 y_pred = np.load(path.join('predictions', 'basic.npz'))['y_pred']
@@ -19,14 +19,16 @@ n_classes = np.max(y_true) + 1
 names = cifar100_names(label_mode='fine')
 
 # Adjustable plot parameters
-img_h = 0.7  # Image shrinkage factor
+# @formatter:off
+im_h = 0.7  # Image shrinkage factor
 aspect = 15  # Number of images that will fit between x = 0 and 1
 scale = 60   # Determines the figure height
 n_each = 10  # Number of examples to show for each class
 line_w = 3   # Width of the square image borders
+# @formatter:on
 
 # Derived plot parameters
-img_w = img_h / aspect
+im_w = im_h / aspect
 
 # Set up the figure
 fig = figure(tools=['save', 'help'],
@@ -48,8 +50,8 @@ for i in range(n_classes):
         prob = y_pred[j, i]
         correct = y_true[j] == np.argmax(y_pred[j])
         fig.image_rgba(
-            [views[j]], prob - img_w / 2, i + img_h / 2, img_w, img_h)
-        fig.rect(prob, i, img_w, img_h,
+            [views[j]], prob - im_w / 2, i + im_h / 2, im_w, im_h)
+        fig.rect(prob, i, im_w, im_h,
                  fill_color=None,
                  line_color='green' if correct else 'red',
                  line_join='miter',
