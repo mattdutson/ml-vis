@@ -50,7 +50,7 @@ p_err.hbar('names', 0.8, 'err', source=source_err)
 
 # Adjustable plot parameters
 # @formatter:off
-buffer = 0.1   # Space around the range +- 1
+buffer = 0.1   # Space around the range+- 1
 im_size = 0.1  # Height and width of images in data coordinates
 scale = 800    # Figure height and width in pixels
 n_max = 100    # Number of examples to show for each class

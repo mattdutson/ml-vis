@@ -20,7 +20,7 @@ names = cifar100_names(label_mode='fine')
 
 # Adjustable plot parameters
 # @formatter:off
-im_h = 0.7  # Image shrinkage factor
+im_h = 0.7   # Image shrinkage factor
 aspect = 15  # Number of images that will fit between x = 0 and 1
 scale = 60   # Determines the figure height
 n_each = 10  # Number of examples to show for each class
