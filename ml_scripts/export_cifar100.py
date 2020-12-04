@@ -56,8 +56,7 @@ def export_split(x, y_f, y_c, name):
     npz_filename = path.join(split_dirname, 'all.npz')
     print('Writing NPZ file "{}"...'.format(npz_filename))
     np.savez_compressed(
-        npz_filename,
-        **{
+        npz_filename, **{
             'x':              x,
             'y_ids_fine':     y_f,
             'y_ids_coarse':   y_c,
