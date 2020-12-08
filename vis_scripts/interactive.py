@@ -4,7 +4,7 @@ import os.path as path
 
 import numpy as np
 from bokeh.layouts import column, row, Spacer
-from bokeh.models import ColumnDataSource, Slider
+from bokeh.models import ColumnDataSource, Div, Slider
 from bokeh.plotting import curdoc, figure
 from sklearn.decomposition import PCA
 
@@ -60,8 +60,8 @@ p_err = figure(title='Error by Class',
                tools=['tap', 'reset'],
                x_axis_location='above',
                x_range=(0, 1),
-               y_range=list(reversed(names_f)),
-               plot_width=600,
+               y_range=[names_f[i] for i in np.argsort(err)],
+               plot_width=400,
                plot_height=1200)
 p_err.toolbar.logo = None
 source_err = ColumnDataSource({
@@ -95,7 +95,7 @@ p_ims.image_rgba(
 
 # Persistent state which may be altered by callbacks
 state = {
-    'classes':  np.arange(n_classes),
+    'classes':  [],
     'im_scale': 1,
 }
 
@@ -108,8 +108,20 @@ def im_sizes(n):
     return [IM_SIZE * state['im_scale']] * n
 
 
+# Reset the image data to empty
+def reset():
+    source_ims.data = {
+        'views':    [],
+        'size':     [],
+        'x_offset': [],
+        'y_offset': [],
+    }
+
+
 # Slow update
 def update_images():
+    if len(state['classes']) == 0:
+        return
     selected = np.where(np.isin(y_true_f, state['classes']))[0]
     pca = PCA(n_components=2)
     pca.fit(ims_flat[selected])
@@ -133,6 +145,8 @@ def update_images():
 
 # Fast update
 def update_params():
+    if len(state['classes']) == 0:
+        return
     d = source_ims.data
     d.update({
         'size':     im_sizes(len(d['views'])),
@@ -142,7 +156,9 @@ def update_params():
 
 
 def err_selection_callback(attr, old, new):
-    state['classes'] = new if len(new) > 0 else np.arange(n_classes)
+    if len(new) == 0:
+        reset()
+    state['classes'] = new
     update_images()
 
 
@@ -153,11 +169,14 @@ def size_slider_callback(attr, old, new):
 
 # Set up interactive widgets and callbacks
 source_err.selected.on_change('indices', err_selection_callback)
-update_images()
+reset()
 size_slider = Slider(
     title='Image Scale', start=0.1, end=3, value=1, step=0.1, width=400)
 size_slider.on_change('value', size_slider_callback)
 
 # Show the figure
-layout = row(p_err, Spacer(width=40), column(p_ims, size_slider))
+text = Div(
+    text="To see image embeddings, select one or more categories in "
+         "the bar chart. Select multiple categories with shift+click.")
+layout = row(p_err, Spacer(width=40), column(text, p_ims, size_slider))
 curdoc().add_root(layout)
