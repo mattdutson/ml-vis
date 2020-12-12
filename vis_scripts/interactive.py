@@ -14,6 +14,9 @@ from utils import cifar100_fine_to_coarse, cifar100_names
 # Image base size (in data coordinates)
 IMAGE_SIZE = 0.05
 
+# Padding for the embedding region (in data coordinates)
+PADDING = 0.15
+
 # Colors for bars and image borders
 COLORS = {
     'red':    [0xff, 0x20, 0x10],
@@ -98,8 +101,8 @@ fig_confusion.yaxis.major_tick_out = 0
 source_embed = ColumnDataSource()
 fig_embed = figure(title='Image Embeddings',
                    tools=['wheel_zoom', 'hover', 'pan', 'reset'],
-                   x_range=(-IMAGE_SIZE, 1 + IMAGE_SIZE),
-                   y_range=(-IMAGE_SIZE, 1 + IMAGE_SIZE),
+                   x_range=(-PADDING, 1 + PADDING),
+                   y_range=(-PADDING, 1 + PADDING),
                    frame_width=800,
                    frame_height=800,
                    active_scroll='wheel_zoom',
@@ -224,7 +227,7 @@ def update_embed():
         elif algo == 'MDS':
             transformer = MDS(n_components=2)
         elif algo == 'TSNE':
-            transformer = TSNE(n_components=2)
+            transformer = TSNE(n_components=2, perplexity=10)
         else:  # 'Spectral'
             transformer = SpectralEmbedding(n_components=2)
 
@@ -233,8 +236,8 @@ def update_embed():
         else:  # 'Softmax'
             vectors = compute_state['y_prob'][shown]
         embed = transformer.fit_transform(vectors)
-        embed -= np.min(embed, axis=0)
-        embed /= np.max(embed, axis=0)
+        embed -= np.percentile(embed, 2, axis=0)
+        embed /= np.percentile(embed, 98, axis=0)
         compute_state['embed'] = embed
 
 
