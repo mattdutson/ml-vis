@@ -266,11 +266,18 @@ def draw_images():
 
 
 def rearrange_images():
-    source_embed.data.update({
-        'x':    position(0),
-        'y':    position(1),
-        'size': image_sizes(len(compute_state['embed'])),
-    })
+    if len(compute_state['shown']) == 0:
+        source_embed.data.update({
+            'x':    [],
+            'y':    [],
+            'size': [],
+        })
+    else:
+        source_embed.data.update({
+            'x':    position(0),
+            'y':    position(1),
+            'size': image_sizes(len(compute_state['embed'])),
+        })
 
 
 def draw_confusion():
