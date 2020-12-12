@@ -12,10 +12,10 @@ from sklearn.manifold import *
 from utils import cifar100_fine_to_coarse, cifar100_names
 
 # Image base size (in data coordinates)
-IMAGE_SIZE = 0.05
+IMAGE_SIZE = 0.06
 
 # Padding for the embedding region (in data coordinates)
-PADDING = 0.15
+PADDING = 0.1
 
 # Colors for bars and image borders
 COLORS = {
