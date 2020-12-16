@@ -14,8 +14,8 @@ names_f = cifar100_names(label_mode='fine')
 names_c = cifar100_names(label_mode='coarse')
 
 
-def export_split(x, y_f, y_c, name):
-    split_dirname = path.join('data', name)
+def export_split(x, y_f, y_c, split_name):
+    split_dirname = path.join('data', split_name)
     os.makedirs(split_dirname, exist_ok=True)
 
     y_names_f = []
@@ -33,8 +33,7 @@ def export_split(x, y_f, y_c, name):
             name_c = names_c[id_c]
             y_names_f.append(name_f)
             y_names_c.append(name_c)
-            csv_file.write(
-                '{},{},{},{}\n'.format(id_f, id_c, name_f, name_c))
+            csv_file.write('{},{},{},{}\n'.format(id_f, id_c, name_f, name_c))
         print('Done.')
 
     # Write a directory of image files
