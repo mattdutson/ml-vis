@@ -4,6 +4,6 @@ channels:
 dependencies:
   - bokeh=2.2          # For visualization
   - pip
-  - python
+  - python=3.7
   - scikit-learn=0.23  # For dimensionality reduction
   - tensorflow=2.2     # For neural networks
