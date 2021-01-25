@@ -6,4 +6,5 @@ dependencies:
   - pip
   - python=3.7
   - scikit-learn=0.23   # For dimensionality reduction
+  - scipy=1.5           # For matrix reordering
   - tensorflow-gpu=2.2  # For neural networks
