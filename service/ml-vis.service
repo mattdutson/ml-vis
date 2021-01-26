@@ -6,9 +6,6 @@ After=network.target
 ExecStart=/home/pi/.local/bin/bokeh serve \
     /home/pi/Repos/ml-vis/vis_scripts/interactive.py \
     --allow-websocket-origin localhost:5006 \
-    --allow-websocket-origin 192.168.1.3:5006 \
-    --allow-websocket-origin raspberrypi.local:5006 \
-    --allow-websocket-origin mattdutson.mynetgear.com:5006 \
     --allow-websocket-origin server.mattdutson.net:5006
 WorkingDirectory=/home/pi/Repos/ml-vis
 Environment="PYTHONPATH=."
@@ -17,4 +14,3 @@ User=pi
 
 [Install]
 WantedBy=multi-user.target
-
