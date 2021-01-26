@@ -11,4 +11,6 @@ COPY utils.py    /ml-vis
 
 RUN pip install -r pip/requirements_deploy.txt
 
+ENV PYTHONPATH="/ml-vis:$PYTHONPATH"
+
 ENTRYPOINT ["bokeh", "serve", "vis_scripts/interactive.py"]
