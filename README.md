@@ -1,6 +1,6 @@
 # ml-vis
 
-Creating visualization tools for understanding the behavior of ML image classifiers
+Visualization tools for understanding ML image classifiers
 
 ## Conda Environment
 
@@ -26,3 +26,13 @@ cd service
 ./setup.sh
 sudo systemctl start ml-vis.service
 ```
+
+## Docker
+
+A Docker image for the interactive visualization tool can be downloaded from https://hub.docker.com/repository/docker/mattdutson/ml-vis.
+
+After downloading, run the image using the command
+```
+docker run -p <PORT>:5006 mattdutson/ml-vis --allow-websocket-origin <HOST>:<PORT>
+```
+Where `<HOST>` and `<PORT>` are replaced by the hostname and port from which the tool will be accessed (`<PORT>` will likely be 80 for HTTP).
