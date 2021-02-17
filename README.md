@@ -18,6 +18,10 @@ This requires that NVIDIA drivers and CUDA 10.1 be installed (see the [TensorFlo
 
 After creating one of the above environments, activate it with `conda activate ml-vis`.
 
+## Data
+
+Sample input data, models, and predictions can be found in [this Google Drive folder](https://drive.google.com/drive/folders/1-1lyEsSeLfxWBS7Ju8NnA8ES09rRWipN?usp=sharing). Each `.zip` file should be extracted to the top-level `ml-vis` directory.
+
 ## Systemd Service
 
 The `service` subdirectory contains an example [systemd](https://freedesktop.org/wiki/Software/systemd/) configuration for `vis_scripts/interactive.py`. To set up the service, first open `service/ml-vis.service` and modify `ExecStart` and `WorkingDirectory` to match your host configuration. Then run
