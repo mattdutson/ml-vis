@@ -1,10 +1,13 @@
 name: ml-vis
 channels:
   - defaults
+  - conda-forge
 dependencies:
-  - bokeh=2.2          # For visualization
-  - pip
+  - bokeh=2.2              # For visualization
+  - pip=21.0
   - python=3.7
-  - scikit-learn=0.23  # For dimensionality reduction
-  - scipy=1.5          # For matrix reordering
-  - tensorflow=2.2     # For neural networks
+  - scikit-learn=0.23      # For dimensionality reduction
+  - scipy=1.5              # For matrix reordering
+  - umap-learn=0.5         # For dimensionality reduction
+  - pip:
+      - tensorflow==2.2.*  # For neural networks

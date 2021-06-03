@@ -1,3 +1,0 @@
-bokeh==2.2.*
-scikit-learn==0.23.*
-tensorflow==2.2.*
