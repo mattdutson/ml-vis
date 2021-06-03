@@ -4,10 +4,12 @@ import os.path as path
 
 import numpy as np
 from bokeh.layouts import column, row, Spacer
-from bokeh.models import ColumnDataSource, Div, Select, Slider, Button
+from bokeh.models import ColumnDataSource
+from bokeh.models import Button, Div, Select, Slider, TextInput
 from bokeh.plotting import curdoc, figure
 from sklearn.decomposition import PCA
 from sklearn.manifold import *
+from umap import UMAP
 
 from utils import cifar100_fine_to_coarse, cifar100_names
 
@@ -52,12 +54,14 @@ n_classes = np.max(y_true_f) + 1
 
 # State which may be modified by callbacks and update functions
 control_state = {
-    'selection_1':  None,
-    'selection_2':  None,
-    'image_scale':  1,
-    'sort':         'Alphabetical',
-    'embed_source': 'Softmax',
-    'embed_algo':   'TSNE',
+    'selection_1':    None,
+    'selection_2':    None,
+    'image_scale':    1,
+    'sort':           'Alphabetical',
+    'embed_source':   'Softmax',
+    'embed_algo':     'TSNE',
+    'umap_neighbors': 15,
+    'umap_min_dist':  0.1,
 }
 compute_state = {}
 
@@ -212,6 +216,13 @@ def update_shown():
         compute_state['shown'] = np.isin(y_true_f, selection)
 
 
+def update_visible_widgets():
+    algo = control_state['embed_algo']
+    widget_recompute.visible = (algo in ['TSNE', 'UMAP'])
+    widget_umap_neighbors.visible = (algo == 'UMAP')
+    widget_umap_min_dist.visible = (algo == 'UMAP')
+
+
 def update_embed():
     shown = compute_state['shown']
     if len(shown) == 0:
@@ -228,6 +239,12 @@ def update_embed():
             transformer = MDS(n_components=2)
         elif algo == 'TSNE':
             transformer = TSNE(n_components=2, perplexity=10)
+        elif algo == 'UMAP':
+            transformer = UMAP(
+                n_components=2,
+                random_state=0,
+                n_neighbors=control_state['umap_neighbors'],
+                min_dist=control_state['umap_min_dist'])
         else:  # 'Spectral'
             transformer = SpectralEmbedding(n_components=2)
 
@@ -359,14 +376,40 @@ def callback_embed_source(_attr, old, new):
 def callback_embed_algo(_attr, old, new):
     if new != old:
         control_state['embed_algo'] = new
+        update_visible_widgets()
         update_embed()
         rearrange_images()
-        widget_recompute_tsne.visible = (new == 'TSNE')
 
 
-def callback_recompute_tsne():
+def callback_recompute():
     update_embed()
     rearrange_images()
+
+
+def callback_umap_neighbors(_attr, old, new):
+    if new != old:
+        try:
+            value = int(new)
+            if value < 2:
+                widget_umap_neighbors.value = 2
+            else:
+                control_state['umap_neighbors'] = value
+        except ValueError:
+            widget_umap_neighbors.value = old
+
+
+def callback_umap_min_dist(_attr, old, new):
+    if new != old:
+        try:
+            value = float(new)
+            if value < 0:
+                widget_umap_min_dist.value = str(0)
+            elif value > 1:
+                widget_umap_min_dist.value = str(1)
+            else:
+                control_state['umap_min_dist'] = value
+        except ValueError:
+            widget_umap_min_dist.value = old
 
 
 def callback_image_scale(_attr, old, new):
@@ -427,11 +470,20 @@ widget_embed_algo = Select(
         'Locally Linear',
         'MDS',
         'TSNE',
+        'UMAP',
         'Spectral',
     ],
     width=WIDGET_WIDTH)
-widget_recompute_tsne = Button(
-    label='Recompute TSNE',
+widget_recompute = Button(
+    label='Recompute Embeddings',
+    width=WIDGET_WIDTH)
+widget_umap_neighbors = TextInput(
+    title='Neighbors',
+    value=str(control_state['umap_neighbors']),
+    width=WIDGET_WIDTH)
+widget_umap_min_dist = TextInput(
+    title='Minimum Distance',
+    value=str(control_state['umap_min_dist']),
     width=WIDGET_WIDTH)
 widget_image_scale = Slider(
     title='Image Scale',
@@ -448,7 +500,9 @@ widget_model.on_change('value', callback_model)
 widget_sort.on_change('value', callback_sort)
 widget_embed_source.on_change('value', callback_embed_source)
 widget_embed_algo.on_change('value', callback_embed_algo)
-widget_recompute_tsne.on_click(callback_recompute_tsne)
+widget_recompute.on_click(callback_recompute)
+widget_umap_neighbors.on_change('value', callback_umap_neighbors)
+widget_umap_min_dist.on_change('value', callback_umap_min_dist)
 widget_image_scale.on_change('value', callback_image_scale)
 
 # Initialization
@@ -456,6 +510,7 @@ load_model('vgg16')
 draw_bars()
 sort_bars()
 update_shown()
+update_visible_widgets()
 update_embed()
 draw_images()
 draw_confusion()
@@ -468,7 +523,9 @@ layout = row(
         widget_sort,
         widget_embed_source,
         widget_embed_algo,
-        widget_recompute_tsne),
+        widget_recompute,
+        widget_umap_neighbors,
+        widget_umap_min_dist),
     fig_acc_f,
     fig_acc_c,
     fig_acc_5,
