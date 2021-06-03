@@ -8,15 +8,11 @@ To create the `ml-vis` environment, run:
 ```
 conda env create -f conda/environment.yml
 ```
-`environment.yml` lists all required Conda and pip packages.
 
 To enable GPU acceleration, instead run:
 ```
 conda env create -f conda/environment_gpu.yml
 ```
-This requires that NVIDIA drivers and CUDA 10.1 be installed (see the [TensorFlow GPU guide](https://www.tensorflow.org/install/gpu)).
-
-After creating one of the above environments, activate it with `conda activate ml-vis`.
 
 ## Data
 
@@ -40,3 +36,9 @@ After downloading, run the image using the command
 docker run -p <PORT>:5006 mattdutson/ml-vis --allow-websocket-origin <HOST>:<PORT>
 ```
 Where `<HOST>` and `<PORT>` are replaced by the hostname and port from which the tool will be accessed (`<PORT>` will likely be 80 for HTTP).
+
+## Code Style
+
+Unless otherwise specified, follow the [PEP8](https://www.python.org/dev/peps/pep-0008) conventions.
+
+Use a line limit of 79 characters.
