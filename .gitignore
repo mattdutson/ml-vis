@@ -1,12 +1,13 @@
+# Sorted using the VSCode "Sort Lines Ascending" command
 __pycache__
+.DS_Store
 .idea
+*.csv
+*.h5
+*.h5.bak
+*.html
+*.npz
+*.zip
 data
 models
 predictions
-.DS_Store
-*.csv
-*.html
-*.h5
-*.h5.bak
-*.npz
-*.zip
