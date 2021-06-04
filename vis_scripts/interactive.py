@@ -58,6 +58,7 @@ control_state = {
     'selection_1':    None,
     'selection_2':    None,
     'image_scale':    1,
+    'mode':           'True',
     'sort':           'Alphabetical',
     'embed_source':   'Softmax',
     'embed_algo':     'TSNE',
@@ -149,24 +150,35 @@ def load_model(name):
     bordered[:, B:-B, B:-B, :3] = np.flip(images, axis=1)
     views = bordered.view(dtype=np.int32).squeeze(axis=-1)
 
+    compute_state.update({
+        'y_prob':    y_prob,
+        'y_pred_f':  y_pred_f,
+        'y_pred_c':  y_pred_c,
+        'views':     views,
+        'correct_f': correct_f,
+        'correct_c': correct_c,
+        'correct_5': correct_5,
+    })
+
+
+def compute_metrics():
     # Compute class-wise accuracy
     acc_f = []
     acc_c = []
     acc_5 = []
     for i in range(n_classes):
-        shape = (y_true_f == i)
-        acc_f.append(np.mean(correct_f[shape]))
-        acc_c.append(np.mean(correct_c[shape]))
-        acc_5.append(np.mean(correct_5[shape]))
+        if control_state['mode'] == 'True':
+            selection = (y_true_f == i)
+        else:
+            selection = (compute_state['y_pred_f'] == i)
+        acc_f.append(np.mean(compute_state['correct_f'][selection]))
+        acc_c.append(np.mean(compute_state['correct_c'][selection]))
+        acc_5.append(np.mean(compute_state['correct_5'][selection]))
 
     compute_state.update({
-        'y_prob':   y_prob,
-        'y_pred_f': y_pred_f,
-        'y_pred_c': y_pred_c,
-        'views':    views,
-        'acc_f':    acc_f,
-        'acc_c':    acc_c,
-        'acc_5':    acc_5,
+        'acc_f': acc_f,
+        'acc_c': acc_c,
+        'acc_5': acc_5,
     })
 
 
@@ -200,21 +212,26 @@ def sort_bars():
     fig_acc_5.y_range.factors = factors
 
 
-def position(axis):
-    offset = IMAGE_SIZE * control_state['image_scale'] / 2
-    return compute_state['embed'][:, axis] - offset
-
-
-def image_sizes(n):
-    return [IMAGE_SIZE * control_state['image_scale']] * n
-
-
 def update_shown():
     selection = control_state['selection_1']
     if selection is None:
         compute_state['shown'] = []
-    else:
+    elif control_state['mode'] == 'True':
         compute_state['shown'] = np.isin(y_true_f, selection)
+    else:
+        compute_state['shown'] = np.isin(compute_state['y_pred_f'], selection)
+
+
+def update_selected_images():
+    if control_state['selection_2'] is None:
+        source_embed.selected.indices = []
+    else:
+        if control_state['mode'] == 'True':
+            shown_classes = compute_state['y_pred_f'][compute_state['shown']]
+        else:
+            shown_classes = y_true_f[compute_state['shown']]
+        source_embed.selected.indices = list(
+            np.where(shown_classes == control_state['selection_2'])[0])
 
 
 def update_visible_widgets():
@@ -258,6 +275,15 @@ def update_embed():
         embed -= np.percentile(embed, 2, axis=0)
         embed /= np.percentile(embed, 98, axis=0)
         compute_state['embed'] = embed
+
+
+def position(axis):
+    offset = IMAGE_SIZE * control_state['image_scale'] / 2
+    return compute_state['embed'][:, axis] - offset
+
+
+def image_sizes(n):
+    return [IMAGE_SIZE * control_state['image_scale']] * n
 
 
 def draw_images():
@@ -311,7 +337,10 @@ def draw_confusion():
         shown = compute_state['shown']
         confusion = []
         for i in range(n_classes):
-            confusion.append(np.mean(compute_state['y_pred_f'][shown] == i))
+            if control_state['mode'] == 'True':
+                confusion.append(np.mean(compute_state['y_pred_f'][shown] == i))
+            else:
+                confusion.append(np.mean(y_true_f[shown] == i))
         source_confusion.data.update({
             'names':     names_f,
             'confusion': confusion,
@@ -319,6 +348,18 @@ def draw_confusion():
         factors = [names_f[i] for i in np.argsort(confusion)]
         fig_confusion.y_range.factors = factors
         fig_confusion.x_range.end = np.min([np.max(confusion) + 0.05, 1])
+
+
+def update_all():
+    compute_metrics()
+    draw_bars()
+    sort_bars()
+    update_shown()
+    update_selected_images()
+    update_visible_widgets()
+    update_embed()
+    draw_images()
+    draw_confusion()
 
 
 def callback_selection_1(_attr, _old, new):
@@ -336,30 +377,23 @@ def callback_selection_2(_attr, _old, new):
     new = new[0] if new else None
     if new != control_state['selection_2']:
         control_state['selection_2'] = new
-        if new is None:
-            source_embed.selected.indices = []
-        else:
-            y_pred_shown = compute_state['y_pred_f'][compute_state['shown']]
-            source_embed.selected.indices = list(
-                np.where(y_pred_shown == new)[0])
+        update_selected_images()
 
 
-def callback_image_selection(_attr, _old, new):
-    y_pred_shown = compute_state['y_pred_f'][compute_state['shown']]
-    correct = list(np.where(y_pred_shown == control_state['selection_2'])[0])
-    if new != correct:
-        source_embed.selected.indices = correct
+def callback_image_selection(_attr, _old, _new):
+    update_selected_images()
+
+
+def callback_mode(_attr, old, new):
+    if new != old:
+        control_state['mode'] = new
+        update_all()
 
 
 def callback_model(_attr, old, new):
     if new != old:
         load_model(MODELS[new])
-        draw_bars()
-        sort_bars()
-        if control_state['embed_source'] == 'Softmax':
-            update_embed()
-        draw_images()
-        draw_confusion()
+        update_all()
 
 
 def callback_sort(_attr, old, new):
@@ -437,6 +471,11 @@ widget_text = Div(
          'corner to return to the original view.</p>'
          '<h2>Controls</h2>',
     width=TEXT_WIDTH)
+widget_mode = Select(
+    title='Mode',
+    value=control_state['mode'],
+    options=['True', 'Predicted'],
+    width=WIDGET_WIDTH)
 widget_model = Select(
     title='Model',
     value='VGG16',
@@ -501,6 +540,7 @@ widget_image_scale = Slider(
 source_acc.selected.on_change('indices', callback_selection_1)
 source_confusion.selected.on_change('indices', callback_selection_2)
 source_embed.selected.on_change('indices', callback_image_selection)
+widget_mode.on_change('value', callback_mode)
 widget_model.on_change('value', callback_model)
 widget_sort.on_change('value', callback_sort)
 widget_embed_source.on_change('value', callback_embed_source)
@@ -512,18 +552,13 @@ widget_image_scale.on_change('value', callback_image_scale)
 
 # Initialization
 load_model('vgg16')
-draw_bars()
-sort_bars()
-update_shown()
-update_visible_widgets()
-update_embed()
-draw_images()
-draw_confusion()
+update_all()
 
 # Create layout and show
 layout = row(
     column(
         widget_text,
+        widget_mode,
         widget_model,
         widget_sort,
         widget_embed_source,
