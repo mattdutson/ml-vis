@@ -31,7 +31,8 @@ COLORS = {
 # Number of border pixels to add to images
 B = 3
 
-# Width of widgets in pixels
+# Width of text and widgets in pixels
+TEXT_WIDTH = 300
 WIDGET_WIDTH = 200
 
 # The set of known models
@@ -219,6 +220,7 @@ def update_shown():
 def update_visible_widgets():
     algo = control_state['embed_algo']
     widget_recompute.visible = (algo in ['TSNE', 'UMAP'])
+    widget_options_header.visible = (algo == 'UMAP')
     widget_umap_neighbors.visible = (algo == 'UMAP')
     widget_umap_min_dist.visible = (algo == 'UMAP')
 
@@ -434,7 +436,7 @@ widget_text = Div(
          'scroll wheel zooming. Click the reset tool in the top-right '
          'corner to return to the original view.</p>'
          '<h2>Controls</h2>',
-    width=300)
+    width=TEXT_WIDTH)
 widget_model = Select(
     title='Model',
     value='VGG16',
@@ -481,6 +483,9 @@ widget_umap_neighbors = TextInput(
     title='Neighbors',
     value=str(control_state['umap_neighbors']),
     width=WIDGET_WIDTH)
+widget_options_header = Div(
+    text='<h3>Embedding Options</h3>',
+    width=TEXT_WIDTH)
 widget_umap_min_dist = TextInput(
     title='Minimum Distance',
     value=str(control_state['umap_min_dist']),
@@ -524,6 +529,7 @@ layout = row(
         widget_embed_source,
         widget_embed_algo,
         widget_recompute,
+        widget_options_header,
         widget_umap_neighbors,
         widget_umap_min_dist),
     fig_acc_f,
