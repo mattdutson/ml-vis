@@ -37,10 +37,11 @@ WIDGET_WIDTH = 200
 
 # The set of known models
 MODELS = {
-    'Basic':     'basic',
-    'MobileNet': 'mobilenet',
-    'VGG16':     'vgg16',
-    'ResNet50':  'resnet50',
+    'Basic':           'basic',
+    'MobileNet':       'mobilenet',
+    'VGG16':           'vgg16',
+    'VGG16 Perturbed': 'vgg16_perturbed',
+    'ResNet50':        'resnet50',
 }
 
 # Load model-agnostic data
