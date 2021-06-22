@@ -3,12 +3,12 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - bokeh=2.2              # For visualization
+  - bokeh=2.2            # For visualization
   - pip=21.0
   - python=3.7
-  - scikit-image=0.18      # For image processing
-  - scikit-learn=0.23      # For dimensionality reduction
-  - scipy=1.5              # For matrix reordering
-  - umap-learn=0.5         # For dimensionality reduction
+  - scikit-image=0.18    # For image processing
+  - scikit-learn=0.23    # For dimensionality reduction
+  - scipy=1.5            # For matrix reordering
+  - umap-learn=0.5       # For dimensionality reduction
   - pip:
-      - tensorflow==2.2.*  # For neural networks
+    - tensorflow==2.2.*  # For neural networks
