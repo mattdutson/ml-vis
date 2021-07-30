@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - cudatoolkit=10.1
+  - cudatoolkit=10.1         # Use cudatoolkit-dev to resolve ptxas warnings
   - cudnn=7.6
   - bokeh=2.2                # For visualization
   - pip=21.0
